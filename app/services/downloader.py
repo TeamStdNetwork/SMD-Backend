@@ -5,27 +5,38 @@ def get_video_data(url: str):
         data = info(url)
         link = download_link(url)
 
-        # ❌ Agar data hi nahi mila
         if not data:
             return {"error": "Invalid or unsupported URL"}
 
-        # 🔥 LINK FIX (IMPORTANT)
-        download_url = ""
+        download_url = None
 
-        if isinstance(link, dict):
-            # try multiple keys (stdapi unpredictable hota hai)
-            download_url = (
-                link.get("url")
-                or link.get("download")
-                or link.get("video")
-                or ""
-            )
-        elif isinstance(link, str):
+        # 🔥 HANDLE ALL CASES
+        if isinstance(link, str):
             download_url = link
 
-        # ❌ Agar link empty hai
+        elif isinstance(link, dict):
+
+            # direct keys
+            for key in ["url", "download", "video"]:
+                if link.get(key):
+                    download_url = link[key]
+                    break
+
+            # 🔥 formats list
+            if not download_url and "formats" in link:
+                formats = link.get("formats")
+                if isinstance(formats, list) and len(formats) > 0:
+                    download_url = formats[0].get("url")
+
+            # 🔥 links list
+            if not download_url and "links" in link:
+                links = link.get("links")
+                if isinstance(links, list) and len(links) > 0:
+                    download_url = links[0].get("url")
+
+        # ❌ still not found
         if not download_url:
-            return {"error": "Failed to get download link"}
+            return {"error": "Download link not found"}
 
         return {
             "title": data.get("title") or "No Title",
@@ -35,5 +46,5 @@ def get_video_data(url: str):
 
     except Exception as e:
         return {
-            "error": "Failed to fetch video"
+            "error": str(e)
         }
