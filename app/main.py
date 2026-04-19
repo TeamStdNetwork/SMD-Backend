@@ -4,13 +4,19 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# ✅ IMPORTANT (frontend connect ke liye)
+# ✅ CORS (frontend connect ke liye MUST)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # production me domain daal sakta hai
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ✅ Routes
 app.include_router(router, prefix="/api")
+
+# ✅ Root test route (browser ke liye)
+@app.get("/")
+def home():
+    return {"message": "API is running 🚀"}
