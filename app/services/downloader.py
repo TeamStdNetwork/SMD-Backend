@@ -1,11 +1,19 @@
 from stdapi.media import info, download_link
 
 def get_video_data(url: str):
-    data = info(url)
-    link = download_link(url)
+    try:
+        data = info(url)
+        link = download_link(url)
 
-    return {
-        "title": data.get("title"),
-        "thumbnail": data.get("thumbnail"),
-        "download": link
-    }
+        # safety check
+        if not data or not link:
+            return {"error": "Invalid or unsupported URL"}
+
+        return {
+            "title": data.get("title") or "No Title",
+            "thumbnail": data.get("thumbnail") or "",
+            "download": link
+        }
+
+    except Exception as e:
+        return {"error": "Failed to fetch video"}
