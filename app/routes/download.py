@@ -10,7 +10,6 @@ class DownloadRequest(BaseModel):
 @router.post("/download")
 def download_video(req: DownloadRequest):
     try:
-        data = get_video_data(req.url)
-        return data
+        return get_video_data(req.url)
     except Exception:
         return {"error": "Failed to fetch video"}
